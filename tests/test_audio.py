@@ -32,6 +32,16 @@ class AudioTests(unittest.TestCase):
         )
         self.assertIsNone(pick_hdmi_sink(SINKS, "missing"))
 
+    def test_prefers_the_rx580_hdmi_over_the_cpu_hdmi(self) -> None:
+        text = (
+            "0\talsa_output.pci-0000_00_02.0.hdmi-stereo\tmodule-alsa-card.c\tSUSPENDED\n"
+            "1\talsa_output.pci-0000_01_00.1.hdmi-stereo\tmodule-alsa-card.c\tSUSPENDED\n"
+        )
+        self.assertEqual(
+            pick_hdmi_sink(text),
+            "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+        )
+
     def test_no_hdmi_leaves_the_default(self) -> None:
         self.assertIsNone(pick_hdmi_sink("0\talsc_output.analog\tmodule\tIDLE\n"))
 

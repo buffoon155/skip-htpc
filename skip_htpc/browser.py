@@ -78,6 +78,8 @@ def browser_argv(
         "--disable-infobars",
         "--autoplay-policy=no-user-gesture-required",
         "--disable-features=Translate,MediaRouter",
+        "--enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL",
+        "--use-gl=desktop",
         "--password-store=basic",
         "--start-maximized",
     ]
@@ -237,7 +239,9 @@ def spawn_browser(
     version = browser_version(binary)
     pipe = uses_debugging_pipe(binary, version)
     argv = browser_argv(binary, app, extension, user_data_dir, pipe)
-    child_env = os.environ.copy() if env is None else env
+    child_env = os.environ.copy() if env is None else dict(env)
+    # Mesa's VA-API driver for the RX 580. Chrome and the page decode with it.
+    child_env.setdefault("LIBVA_DRIVER_NAME", "radeonsi")
     if pipe:
         return spawn_piped(
             argv,

@@ -1,0 +1,4 @@
+[Autologin]
+User=@HTPC_USER@
+Session=plasmax11
+Relogin=false

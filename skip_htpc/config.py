@@ -17,16 +17,22 @@ def default_config() -> dict:
                 "class": "Kodi",
             },
             {
-                "id": "netflix",
+                "id": "youtube",
                 "kind": "browser",
-                "url": "https://www.netflix.com",
-                "class": "skip-htpc-netflix",
+                "url": "https://www.youtube.com/tv",
+                "class": "skip-htpc-youtube",
             },
             {
                 "id": "areena",
                 "kind": "browser",
                 "url": "https://areena.yle.fi",
                 "class": "skip-htpc-areena",
+            },
+            {
+                "id": "netflix",
+                "kind": "browser",
+                "url": "https://www.netflix.com",
+                "class": "skip-htpc-netflix",
             },
         ],
     }

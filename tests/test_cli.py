@@ -21,7 +21,7 @@ class CliTests(unittest.TestCase):
         with mock.patch.object(cli, "load_config", default_config):
             with redirect_stdout(io.StringIO()) as stdout:
                 self.assertEqual(cli.main(["apps"]), 0)
-        self.assertEqual(stdout.getvalue().strip(), "kodi netflix areena")
+        self.assertEqual(stdout.getvalue().strip(), "kodi youtube areena netflix")
 
     def test_launch_needs_an_app(self) -> None:
         with redirect_stderr(io.StringIO()):
@@ -30,18 +30,23 @@ class CliTests(unittest.TestCase):
             self.assertEqual(cli.main(["launch", "lounge"]), 2)
         self.assertIn("unknown app", stderr.getvalue())
 
-    def test_nvidia_ok_command(self) -> None:
+    def test_gpu_ok_command(self) -> None:
+        ellesmere = (
+            "01:00.0 VGA compatible controller: Advanced Micro Devices, Inc. "
+            "Ellesmere [1002:67df]"
+        )
+        vainfo = "VAProfileHEVCMain10 : VAEntrypointVLD"
         with redirect_stderr(io.StringIO()):
             self.assertEqual(
                 cli.main(
                     [
-                        "nvidia-ok",
-                        "--version",
-                        "470.256.02-0ubuntu0.22.04.1",
-                        "--depends",
-                        "Depends: nvidia-dkms-470",
-                        "--kernel",
-                        "6.8.0-79-generic",
+                        "gpu-ok",
+                        "--lspci",
+                        ellesmere,
+                        "--driver",
+                        "amdgpu",
+                        "--vainfo",
+                        vainfo,
                     ]
                 ),
                 0,
@@ -49,17 +54,27 @@ class CliTests(unittest.TestCase):
             self.assertEqual(
                 cli.main(
                     [
-                        "nvidia-ok",
-                        "--version",
-                        "470.256.02-0ubuntu1",
-                        "--depends",
-                        "Depends: nvidia-driver-535",
-                        "--kernel",
-                        "6.8.0-40-generic",
+                        "gpu-ok",
+                        "--lspci",
+                        "01:00.0 VGA compatible controller: NVIDIA Corporation GP107",
+                        "--driver",
+                        "nvidia",
+                        "--vainfo",
+                        vainfo,
                     ]
                 ),
                 10,
             )
+
+    def test_patch_plasma_writes_f13(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "kglobalshortcutsrc"
+            path.write_text("[kwin]\nA=1\n", encoding="utf-8")
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.main(["patch-plasma", str(path)]), 0)
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("[kwin]\nA=1\n", text)
+            self.assertIn("_launch=F13,none,Skip HTPC next", text)
 
     def test_extension_manifest(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -71,7 +86,7 @@ class CliTests(unittest.TestCase):
         with mock.patch.object(cli, "load_config", default_config):
             with mock.patch.object(cli, "resolve_browser", return_value=None):
                 with mock.patch.object(cli, "shutil_which", return_value=None):
-                    with mock.patch.object(cli, "_lspci_vga", return_value=""):
+                    with mock.patch.object(cli, "_gpu_report", return_value="gpu: unseen"):
                         with redirect_stdout(io.StringIO()) as stdout:
                             code = cli.main(["doctor"])
         self.assertEqual(code, 1)

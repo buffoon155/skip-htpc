@@ -1,10 +1,11 @@
 #!/bin/bash
-# Living-room launcher: ./launch.sh kodi|netflix|areena|next|status
+# Living-room launcher: ./launch.sh kodi|youtube|areena|netflix|next|status
 # Google Chrome is preferred. Chromium is only the fallback.
 set -euo pipefail
 
-NETFLIX_URL_DEFAULT=https://www.netflix.com
+YOUTUBE_URL_DEFAULT=https://www.youtube.com/tv
 AREENA_URL_DEFAULT=https://areena.yle.fi
+NETFLIX_URL_DEFAULT=https://www.netflix.com
 
 script_dir() {
   cd "$(dirname "$0")" && pwd
@@ -41,13 +42,13 @@ trim() {
   printf '%s\n' "$value"
 }
 
-# cycle_order is a same-line list: cycle_order: [kodi, netflix, areena]
+# cycle_order is a same-line list: cycle_order: [kodi, youtube, areena, netflix]
 # A YAML list on the following lines is rejected.
 read_cycle_order() {
   local file=$1 line inside item
   line=$(grep -E '^cycle_order:[[:space:]]*\[[^]]*\][[:space:]]*(#.*)?$' "$file" | head -n 1 || true)
   if [[ -z "$line" ]]; then
-    echo "cycle_order must be a same-line list, for example [kodi, netflix, areena]" >&2
+    echo "cycle_order must be a same-line list, for example [kodi, youtube, areena, netflix]" >&2
     return 1
   fi
   inside=${line#*[}
@@ -169,6 +170,10 @@ current_app() {
         printf '%s\n' kodi
         return 0
         ;;
+      *skip-htpc-youtube*|*Skip-htpc-youtube*)
+        printf '%s\n' youtube
+        return 0
+        ;;
       *skip-htpc-netflix*|*Skip-htpc-netflix*)
         printf '%s\n' netflix
         return 0
@@ -201,8 +206,9 @@ start_line() {
   browser=$(pick_browser || true)
   case "$id" in
     kodi) printf '%s\n' "kodi" ;;
-    netflix) printf '%s\n' "${browser:-google-chrome} --app=${netflix_url}" ;;
+    youtube) printf '%s\n' "${browser:-google-chrome} --app=${youtube_url}" ;;
     areena) printf '%s\n' "${browser:-google-chrome} --app=${areena_url}" ;;
+    netflix) printf '%s\n' "${browser:-google-chrome} --app=${netflix_url}" ;;
     *) echo "unknown app ${id}" >&2; return 2 ;;
   esac
 }
@@ -226,8 +232,9 @@ start_app() {
   fi
   require_display
   setup_pythonpath
-  export SKIP_HTPC_NETFLIX_URL="$netflix_url"
+  export SKIP_HTPC_YOUTUBE_URL="$youtube_url"
   export SKIP_HTPC_AREENA_URL="$areena_url"
+  export SKIP_HTPC_NETFLIX_URL="$netflix_url"
   python3 -m skip_htpc launch "$id"
   write_last "$id"
 }
@@ -240,14 +247,16 @@ load_urls() {
     return 1
   fi
   read_cycle_order "$file"
-  netflix_url=$(yaml_value netflix_url "$file" || true)
+  youtube_url=$(yaml_value youtube_url "$file" || true)
   areena_url=$(yaml_value areena_url "$file" || true)
-  netflix_url=${netflix_url:-$NETFLIX_URL_DEFAULT}
+  netflix_url=$(yaml_value netflix_url "$file" || true)
+  youtube_url=${youtube_url:-$YOUTUBE_URL_DEFAULT}
   areena_url=${areena_url:-$AREENA_URL_DEFAULT}
+  netflix_url=${netflix_url:-$NETFLIX_URL_DEFAULT}
 }
 
 usage() {
-  echo "usage: launch.sh kodi|netflix|areena|next|status" >&2
+  echo "usage: launch.sh kodi|youtube|areena|netflix|next|status" >&2
 }
 
 main() {
@@ -259,7 +268,7 @@ main() {
   fi
   load_urls
   case "$cmd" in
-    kodi|netflix|areena)
+    kodi|youtube|areena|netflix)
       start_app "$cmd"
       ;;
     next)
@@ -283,8 +292,9 @@ main() {
       echo "focused: ${focused:-none}"
       echo "last: ${last:-none}"
       echo "browser: ${browser:-missing}"
-      echo "netflix: ${netflix_url}"
+      echo "youtube: ${youtube_url}"
       echo "areena: ${areena_url}"
+      echo "netflix: ${netflix_url}"
       ;;
     *)
       usage

@@ -18,14 +18,17 @@ if grep -n 'getline' launch.sh; then
   fail "cycle_order must be parsed from the same-line list"
 fi
 
-grep -qx 'cycle_order: \[kodi, netflix, areena\]' config.yaml
-grep -qx 'netflix_url: https://www.netflix.com' config.yaml
+grep -qx 'cycle_order: \[kodi, youtube, areena, netflix\]' config.yaml
+grep -qx 'youtube_url: https://www.youtube.com/tv' config.yaml
 grep -qx 'areena_url: https://areena.yle.fi' config.yaml
-grep -q -- '--app=${netflix_url}' launch.sh
+grep -qx 'netflix_url: https://www.netflix.com' config.yaml
+grep -q -- '--app=${youtube_url}' launch.sh
 grep -q -- '--app=${areena_url}' launch.sh
+grep -q -- '--app=${netflix_url}' launch.sh
 grep -q 'google-chrome-stable' launch.sh
-grep -q 'NETFLIX_URL_DEFAULT=https://www.netflix.com' launch.sh
+grep -q 'YOUTUBE_URL_DEFAULT=https://www.youtube.com/tv' launch.sh
 grep -q 'AREENA_URL_DEFAULT=https://areena.yle.fi' launch.sh
+grep -q 'NETFLIX_URL_DEFAULT=https://www.netflix.com' launch.sh
 
 grep -q 'addEventListener("keydown"' extension/content.js
 grep -q ', true);' extension/content.js
@@ -34,17 +37,21 @@ grep -q 'outline' extension/content.js
 grep -q "data-uia='title-card'" extension/content.js
 grep -q handleNext extension/content.js
 grep -q Takaisin extension/content.js
-grep -q 'Exec=/usr/local/bin/launch.sh kodi' session/autostart/skip-htpc.desktop
-grep -q 'ExecStart=/usr/local/bin/launch.sh kodi' session/systemd/skip-htpc.service
+grep -q 'Exec=/usr/local/share/skip-htpc/session/plasma/session.sh' session/autostart/skip-htpc.desktop
+grep -q 'ExecStart=/usr/local/share/skip-htpc/session/plasma/session.sh' session/systemd/skip-htpc.service
+grep -q 'launch.sh kodi' session/plasma/session.sh
+grep -q 'X-KDE-GlobalAccel-CommandShortcut=true' session/plasma/skip-htpc-next.desktop
+grep -q 'Session=plasmax11' install/sddm/skip-htpc.conf.in
 grep -q 'function navigate' extension/spatial.js
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 status=$(SKIP_HTPC_STATE="$tmp/state" SKIP_HTPC_BROWSER=google-chrome ./launch.sh status)
-printf '%s\n' "$status" | grep -qx 'cycle_order: kodi netflix areena'
-printf '%s\n' "$status" | grep -qx 'netflix: https://www.netflix.com'
+printf '%s\n' "$status" | grep -qx 'cycle_order: kodi youtube areena netflix'
+printf '%s\n' "$status" | grep -qx 'youtube: https://www.youtube.com/tv'
 printf '%s\n' "$status" | grep -qx 'areena: https://areena.yle.fi'
+printf '%s\n' "$status" | grep -qx 'netflix: https://www.netflix.com'
 printf '%s\n' "$status" | grep -qx 'browser: google-chrome'
 
 dry_netflix=$(SKIP_HTPC_STATE="$tmp/state" SKIP_HTPC_DRY=1 SKIP_HTPC_BROWSER=google-chrome ./launch.sh netflix)
@@ -53,14 +60,18 @@ printf '%s\n' "$dry_netflix" | grep -qx 'google-chrome --app=https://www.netflix
 dry_areena=$(SKIP_HTPC_STATE="$tmp/state" SKIP_HTPC_DRY=1 SKIP_HTPC_BROWSER=chromium ./launch.sh areena)
 printf '%s\n' "$dry_areena" | grep -qx 'chromium --app=https://areena.yle.fi'
 
-first=$(SKIP_HTPC_STATE="$tmp/state" SKIP_HTPC_DRY=1 SKIP_HTPC_DEBOUNCE=0 ./launch.sh next)
+# A fresh state has no last app, so the first press opens Kodi.
+first=$(SKIP_HTPC_STATE="$tmp/cycle" SKIP_HTPC_DRY=1 SKIP_HTPC_DEBOUNCE=0 ./launch.sh next)
 printf '%s\n' "$first" | grep -qx 'next: kodi'
 printf '%s\n' "$first" | grep -qx 'kodi'
 
-second=$(SKIP_HTPC_STATE="$tmp/state" SKIP_HTPC_DRY=1 SKIP_HTPC_DEBOUNCE=0 ./launch.sh next)
-printf '%s\n' "$second" | grep -qx 'next: netflix'
-printf '%s\n' "$second" | grep -qx 'google-chrome --app=https://www.netflix.com' \
-  || printf '%s\n' "$second" | grep -q -- '--app=https://www.netflix.com'
+second=$(SKIP_HTPC_STATE="$tmp/cycle" SKIP_HTPC_DRY=1 SKIP_HTPC_DEBOUNCE=0 ./launch.sh next)
+printf '%s\n' "$second" | grep -qx 'next: youtube'
+printf '%s\n' "$second" | grep -q -- '--app=https://www.youtube.com/tv'
+
+third=$(SKIP_HTPC_STATE="$tmp/cycle" SKIP_HTPC_DRY=1 SKIP_HTPC_DEBOUNCE=0 ./launch.sh next)
+printf '%s\n' "$third" | grep -qx 'next: areena'
+printf '%s\n' "$third" | grep -q -- '--app=https://areena.yle.fi'
 
 printf 'cycle_order:\n  - kodi\n  - netflix\n' > "$tmp/bad.yaml"
 if SKIP_HTPC_CONFIG_YAML="$tmp/bad.yaml" ./launch.sh status >/dev/null 2>"$tmp/bad.err"; then

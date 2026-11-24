@@ -1,8 +1,0 @@
-# The -updates pocket has shipped nvidia-driver-470 as a wrapper that
-# installs a 535 driver. 535 does not support a GeForce GTX 660.
-# @CODENAME@ is replaced with the running Ubuntu codename when the
-# installer actually sees that wrapper. A later pocket that really
-# contains 470.x is left alone until then.
-Package: *nvidia*470*
-Pin: release a=@CODENAME@-updates
-Pin-Priority: -1

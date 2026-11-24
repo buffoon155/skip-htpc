@@ -3,15 +3,27 @@ set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=$("$root/install/install.sh" --dry-run)
 printf '%s\n' "$out" | grep -q 'skip-htpc install: dry-run'
-printf '%s\n' "$out" | grep -q 'packages:.*openbox'
+printf '%s\n' "$out" | grep -q 'packages:.*plasma-session-x11'
+printf '%s\n' "$out" | grep -q 'packages:.*mesa-libgallium'
+printf '%s\n' "$out" | grep -q 'packages:.*kodi'
 printf '%s\n' "$out" | grep -q 'browser: google-chrome-stable'
-printf '%s\n' "$out" | grep -q 'nvidia: not requested'
+printf '%s\n' "$out" | grep -q 'Radeon RX 580'
+printf '%s\n' "$out" | grep -q 'installer targets Kubuntu 26.04'
 printf '%s\n' "$out" | grep -q 'F13 -> /usr/local/bin/launch.sh next'
-printf '%s\n' "$out" | grep -q 'boot: openbox autostart runs launch.sh kodi'
+printf '%s\n' "$out" | grep -q 'plasmax11'
+printf '%s\n' "$out" | grep -q 'boot: plasma autostart runs the session script'
 
-nvidia=$("$root/install/install.sh" --dry-run --nvidia --no-chrome)
-printf '%s\n' "$nvidia" | grep -q 'nvidia: requested'
-printf '%s\n' "$nvidia" | grep -q 'browser: skipped'
+if grep -q 'nvidia-driver' "$root/install/install.sh"; then
+  echo "installer still names a NVIDIA driver package" >&2
+  exit 1
+fi
+if grep -q 'user-session=openbox' "$root/install/install.sh"; then
+  echo "installer still selects an Openbox session" >&2
+  exit 1
+fi
+
+skipped=$("$root/install/install.sh" --dry-run --no-chrome)
+printf '%s\n' "$skipped" | grep -q 'browser: skipped'
 
 help=$("$root/install/install.sh" --help)
 printf '%s\n' "$help" | grep -q -- '--yes'
