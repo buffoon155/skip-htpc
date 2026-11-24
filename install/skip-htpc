@@ -1,0 +1,3 @@
+#!/bin/sh
+export PYTHONPATH="/usr/local/share/skip-htpc${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m skip_htpc "$@"

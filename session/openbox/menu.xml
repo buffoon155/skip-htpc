@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+  <menu id="root-menu" label="Skip HTPC">
+    <item label="Kodi">
+      <action name="Execute">
+        <command>/usr/local/bin/skip-htpc launch kodi</command>
+      </action>
+    </item>
+    <item label="Netflix">
+      <action name="Execute">
+        <command>/usr/local/bin/skip-htpc launch netflix</command>
+      </action>
+    </item>
+    <item label="Areena">
+      <action name="Execute">
+        <command>/usr/local/bin/skip-htpc launch areena</command>
+      </action>
+    </item>
+    <separator />
+    <item label="Terminal">
+      <action name="Execute">
+        <command>x-terminal-emulator</command>
+      </action>
+    </item>
+    <item label="Exit session">
+      <action name="Exit" />
+    </item>
+  </menu>
+</openbox_menu>

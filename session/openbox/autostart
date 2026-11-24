@@ -1,0 +1,16 @@
+#!/bin/sh
+# Openbox session startup for the living-room display.
+# The Flirc remote is a keyboard. F13 is grabbed in rc.xml.
+
+if command -v xset >/dev/null 2>&1; then
+  xset s off || true
+  xset s noblank || true
+  xset -dpms || true
+fi
+
+# HDMI on the GTX 660 when PipeWire or PulseAudio exposes it.
+/usr/local/bin/skip-htpc audio || true
+
+# The library is the screen that comes up. Netflix and Areena stay
+# closed until the remote asks for them.
+/usr/local/bin/skip-htpc launch kodi || true

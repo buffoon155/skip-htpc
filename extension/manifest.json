@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Skip HTPC spatial navigation",
+  "version": "0.1.0",
+  "description": "Arrow-key spatial navigation for Netflix and Yle Areena on the living-room HTPC.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.netflix.com/*",
+        "https://areena.yle.fi/*"
+      ],
+      "js": ["spatial.js", "content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kodi already maps arrows, Enter, Esc, and the media keys.
+  F13 is the app-cycle key and is grabbed by Openbox. This noop is
+  only here so a missed grab does not do something else inside Kodi.
+-->
+<keymap>
+  <global>
+    <keyboard>
+      <f13>noop</f13>
+    </keyboard>
+  </global>
+  <fullscreenvideo>
+    <keyboard>
+      <f13>noop</f13>
+    </keyboard>
+  </fullscreenvideo>
+</keymap>
