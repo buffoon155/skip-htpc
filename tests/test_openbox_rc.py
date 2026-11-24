@@ -23,10 +23,26 @@ class OpenboxRcTests(unittest.TestCase):
         twice = ensure_cycle_keybind(once)
         self.assertEqual(once, twice)
         self.assertEqual(once.count('key="F13"'), 1)
-        self.assertIn("/usr/local/bin/skip-htpc cycle", once)
+        self.assertIn("/usr/local/bin/launch.sh next", once)
         self.assertIn('class="skip-htpc-netflix"', once)
         self.assertIn('class="skip-htpc-areena"', once)
         self.assertIn('key="A-F4"', once)
+
+    def test_replaces_an_old_f13_command(self) -> None:
+        old = RC.replace(
+            "</keyboard>",
+            """    <keybind key="F13">
+      <action name="Execute">
+        <command>/usr/local/bin/skip-htpc cycle</command>
+      </action>
+    </keybind>
+  </keyboard>""",
+        )
+        updated = ensure_cycle_keybind(old)
+        self.assertEqual(updated.count('key="F13"'), 1)
+        self.assertIn("/usr/local/bin/launch.sh next", updated)
+        self.assertNotIn("skip-htpc cycle", updated)
+        self.assertEqual(ensure_cycle_keybind(updated), updated)
 
     def test_missing_keyboard_section_is_an_error(self) -> None:
         with self.assertRaises(ValueError):

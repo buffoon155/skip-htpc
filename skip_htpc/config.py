@@ -19,13 +19,13 @@ def default_config() -> dict:
             {
                 "id": "netflix",
                 "kind": "browser",
-                "url": "https://www.netflix.com/browse",
+                "url": "https://www.netflix.com",
                 "class": "skip-htpc-netflix",
             },
             {
                 "id": "areena",
                 "kind": "browser",
-                "url": "https://areena.yle.fi/",
+                "url": "https://areena.yle.fi",
                 "class": "skip-htpc-areena",
             },
         ],
@@ -101,6 +101,20 @@ def load_config(paths: list[Path] | None = None) -> dict:
         config = merge_config(config, override)
     validate_config(config)
     return config
+
+
+def apply_url_override(app: dict) -> dict:
+    """Honor SKIP_HTPC_<ID>_URL from launch.sh so config.yaml wins."""
+    if app.get("kind") != "browser":
+        return app
+    url = os.environ.get(f"SKIP_HTPC_{str(app['id']).upper()}_URL", "").strip()
+    if not url:
+        return app
+    if not url.startswith("https://"):
+        raise ValueError(f"{app['id']} url override must be https")
+    copied = dict(app)
+    copied["url"] = url
+    return copied
 
 
 def app_order(config: dict) -> list[str]:

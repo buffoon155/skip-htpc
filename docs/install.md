@@ -17,9 +17,9 @@ sudo reboot
 `--dry-run` is the default and changes nothing. `--yes` installs:
 
 - Openbox, LightDM, Xorg, distro Kodi, wmctrl, xdotool
-- Google Chrome stable, for the Widevine CDM
+- Google Chrome stable. Prefer Chrome over Chromium: Chrome ships Widevine, and Netflix needs that CDM. Chromium is only a fallback when `google-chrome-stable` is absent.
 - user `htpc` (override with `HTPC_USER=something sudo ./install/install.sh --yes`)
-- `/usr/local/bin/skip-htpc` and `/usr/local/share/skip-htpc`
+- `/usr/local/bin/launch.sh`, `/usr/local/bin/skip-htpc`, and `/usr/local/share/skip-htpc`
 - LightDM autologin to the Openbox session
 - the F13 keybind in that user's Openbox config
 - the Kodi keymap under that user's `.kodi`
@@ -34,7 +34,7 @@ The script does not restart the display manager. Reboot when you are ready for t
 2. Settings → System → Display. Set the settings level to Expert. Use full screen, and turn on **Use full screen window**. Exclusive fullscreen cannot be covered by Netflix or Areena.
 3. Player → Videos: render method VDPAU or Automatic.
 4. Add the library sources in Kodi. They are not in this repo.
-5. Press F13, or the spare Flirc key, once. Netflix opens. Sign in with a USB keyboard. Press F13 again and sign in to Areena. The Chrome profiles are kept under `~/.local/share/skip-htpc/profiles/`.
+5. Press F13, or the spare Flirc key, once. That runs `launch.sh next` and opens Netflix in Chrome (`--app=https://www.netflix.com`). Sign in with a USB keyboard. Press F13 again for Areena (`--app=https://areena.yle.fi`). The Chrome profiles are kept under `~/.local/share/skip-htpc/profiles/`.
 6. `skip-htpc doctor` should report the extension, the browser, and wmctrl.
 
 ## Config

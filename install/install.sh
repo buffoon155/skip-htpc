@@ -104,7 +104,7 @@ if [[ "$NVIDIA" -eq 1 ]]; then
 else
   echo "nvidia: not requested"
 fi
-echo "session: lightdm autologin, openbox, F13 -> /usr/local/bin/skip-htpc cycle"
+echo "session: lightdm autologin, openbox, F13 -> /usr/local/bin/launch.sh next"
 
 if [[ "$DRY" -eq 1 ]]; then
   exit 0
@@ -162,7 +162,13 @@ for part in skip_htpc extension session kodi docs; do
   cp -a "${ROOT}/${part}" "${DEST}/${part}"
 done
 cp -a "${ROOT}/README.md" "${DEST}/README.md"
+cp -a "${ROOT}/config.yaml" "${DEST}/config.yaml"
 install -m 0755 "${ROOT}/install/skip-htpc" /usr/local/bin/skip-htpc
+install -m 0755 "${ROOT}/launch.sh" /usr/local/bin/launch.sh
+install -d /etc/skip-htpc
+if [[ ! -f /etc/skip-htpc/config.yaml ]]; then
+  install -m 0644 "${ROOT}/config.yaml" /etc/skip-htpc/config.yaml
+fi
 
 install -d /etc/lightdm/lightdm.conf.d
 sed "s/@HTPC_USER@/${HTPC_USER}/g" \

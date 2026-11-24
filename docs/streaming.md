@@ -4,16 +4,16 @@ Both sites run in the official web player. Do not install an unofficial Kodi Net
 
 | App | Command | Window class | Profile |
 | --- | --- | --- | --- |
-| Netflix | Chrome `--app=https://www.netflix.com/browse` | `skip-htpc-netflix` | `~/.local/share/skip-htpc/profiles/netflix` |
-| Areena | Chrome `--app=https://areena.yle.fi/` | `skip-htpc-areena` | `~/.local/share/skip-htpc/profiles/areena` |
+| Netflix | `google-chrome --app=https://www.netflix.com` | `skip-htpc-netflix` | `~/.local/share/skip-htpc/profiles/netflix` |
+| Areena | `google-chrome --app=https://areena.yle.fi` | `skip-htpc-areena` | `~/.local/share/skip-htpc/profiles/areena` |
 
 Separate profiles mean both can stay open. `skip-htpc launch` focuses the existing window when the class is already on screen, and starts the browser only when it is not.
 
 ## Widevine
 
-Google Chrome stable supplies the Widevine CDM. On Linux that CDM is L3, so Netflix tops out around 720p. Areena's web player uses the same browser. The GTX 660 does not change the CDM level.
+Install Google Chrome (`google-chrome-stable`). That package supplies the Widevine CDM. On Linux the CDM is L3, so Netflix tops out around 720p. Areena's web player uses the same browser. The GTX 660 does not change the CDM level.
 
-Chromium still accepts `--load-extension`, but the distro Chromium build often has no CDM. Prefer Chrome unless you have a reason to point `browser` at something else. The launcher treats a binary whose version string starts with `Google Chrome` as branded Chrome, and everything else as Chromium.
+`launch.sh` selects `google-chrome-stable`, then `google-chrome`, and only then `chromium` or `chromium-browser`. Chromium still accepts `--load-extension`, but the distro build often has no CDM, so Netflix does not play. The launcher treats a binary whose version string starts with `Google Chrome` as branded Chrome, and everything else as Chromium.
 
 ## Extension
 

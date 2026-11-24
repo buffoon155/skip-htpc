@@ -13,4 +13,4 @@ fi
 
 # The library is the screen that comes up. Netflix and Areena stay
 # closed until the remote asks for them.
-/usr/local/bin/skip-htpc launch kodi || true
+/usr/local/bin/launch.sh kodi || true

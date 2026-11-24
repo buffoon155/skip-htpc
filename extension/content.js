@@ -78,6 +78,8 @@
     el.style.pointerEvents = "none";
     el.style.boxSizing = "border-box";
     el.style.border = "3px solid #ff6a00";
+    el.style.outline = "3px solid #ff6a00";
+    el.style.outlineOffset = "1px";
     el.style.borderRadius = "6px";
     el.style.boxShadow = "0 0 0 2px #000";
     el.style.display = "none";

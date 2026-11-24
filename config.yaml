@@ -1,0 +1,5 @@
+# Same-line list. launch.sh parses this form and does not read a
+# following line (no getline).
+cycle_order: [kodi, netflix, areena]
+netflix_url: https://www.netflix.com
+areena_url: https://areena.yle.fi

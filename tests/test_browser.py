@@ -37,7 +37,7 @@ class BrowserArgTests(unittest.TestCase):
         self.assertNotIn("--load-extension=" + str(extension), piped)
         self.assertIn(f"--load-extension={extension}", plain)
         self.assertNotIn("--remote-debugging-pipe", plain)
-        self.assertIn("--app=https://www.netflix.com/browse", plain)
+        self.assertIn("--app=https://www.netflix.com", plain)
         self.assertIn("--class=skip-htpc-netflix", plain)
         self.assertIn(f"--user-data-dir={profile}", plain)
 
@@ -78,7 +78,7 @@ class BrowserPipeTests(unittest.TestCase):
             extension.mkdir()
             env = os.environ.copy()
             env["FAKE_CHROME_REQUEST"] = str(request_path)
-            argv = [sys.executable, str(fake), "--app=https://www.netflix.com/browse"]
+            argv = [sys.executable, str(fake), "--app=https://www.netflix.com"]
             session = spawn_piped(argv, extension, env=env, timeout=5)
             try:
                 self.assertIsNotNone(session.cdp_response)

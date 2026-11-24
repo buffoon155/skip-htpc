@@ -5,3 +5,4 @@ test:
 	node --test extension/spatial.test.mjs
 	bash -n install/install.sh
 	bash tests/test_install_dry_run.sh
+	bash scripts/selftest.sh

@@ -6,7 +6,7 @@ printf '%s\n' "$out" | grep -q 'skip-htpc install: dry-run'
 printf '%s\n' "$out" | grep -q 'packages:.*openbox'
 printf '%s\n' "$out" | grep -q 'browser: google-chrome-stable'
 printf '%s\n' "$out" | grep -q 'nvidia: not requested'
-printf '%s\n' "$out" | grep -q 'F13 -> /usr/local/bin/skip-htpc cycle'
+printf '%s\n' "$out" | grep -q 'F13 -> /usr/local/bin/launch.sh next'
 
 nvidia=$("$root/install/install.sh" --dry-run --nvidia --no-chrome)
 printf '%s\n' "$nvidia" | grep -q 'nvidia: requested'

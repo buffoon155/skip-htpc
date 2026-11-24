@@ -10,7 +10,7 @@ from shutil import which
 
 from skip_htpc.audio import pick_hdmi_sink
 from skip_htpc.browser import resolve_browser, spawn_browser
-from skip_htpc.config import app_by_id, app_order, load_config
+from skip_htpc.config import app_by_id, app_order, apply_url_override, load_config
 from skip_htpc.launch import cycle_target, plan_launch
 from skip_htpc.nvidia import nvidia_status, nvidia_status_message
 from skip_htpc.openbox_rc import ensure_cycle_keybind
@@ -157,6 +157,7 @@ def _apply_plan(plan, config: dict) -> int:
 
 
 def _spawn(app: dict, config: dict) -> bool:
+    app = apply_url_override(app)
     if app["kind"] == "command":
         try:
             subprocess.Popen(

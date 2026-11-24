@@ -2,7 +2,7 @@
 
 Living-room HTPC for a spare AMD64 PC with a GeForce GTX 660.
 
-Kodi plays the local library. Netflix and Yle Areena run in Chrome `--app` windows, on the official sites, with Widevine. A Flirc turns the Skip remote into a keyboard. F13 cycles Kodi, Netflix, and Areena.
+Kodi plays the local library. Netflix and Yle Areena run in Google Chrome `--app` windows, on the official sites, with Widevine. A Flirc turns the Skip remote into a keyboard. F13 runs `launch.sh next`.
 
 This PC does not join any other home-theatre controller. There is no hub, serial amplifier control, or second-screen kiosk in this repository.
 
@@ -11,17 +11,19 @@ This PC does not join any other home-theatre controller. There is no hub, serial
 | Piece | Role |
 | --- | --- |
 | Kodi | Native player for the library. Not used for Netflix. |
-| Chrome `--app` | `https://www.netflix.com/browse` and `https://areena.yle.fi/` |
+| Chrome `--app` | `https://www.netflix.com` and `https://areena.yle.fi` |
+| `launch.sh` | `kodi`, `netflix`, `areena`, `next`, `status` |
 | `extension/` | MV3 spatial navigation for those two sites |
-| `skip-htpc` | Focus or launch an app; F13 cycles them |
 | Openbox + LightDM | Autologin session so the TV has one full-screen window |
 
-Linux Widevine is the L3 CDM. Expect about 720p from Netflix, not 1080p or 4K. The GTX 660 decodes H.264 in Kodi and does not decode HEVC, VP9, or AV1 in hardware.
+Use **Google Chrome** (`google-chrome-stable`). It is the browser that ships the Widevine CDM. `launch.sh` picks Chrome before Chromium. Distro Chromium often has no CDM, and Netflix will not play there. Linux Widevine is L3, so Netflix stays around 720p. The GTX 660 decodes H.264 in Kodi and does not decode HEVC, VP9, or AV1 in hardware.
 
 ## Layout
 
 ```text
-skip_htpc/          launcher, window matching, Chrome startup, audio
+launch.sh           kodi | netflix | areena | next | status
+config.yaml         cycle_order: [kodi, netflix, areena]
+skip_htpc/          window focus, Chrome startup, audio
 extension/          MV3 content script (spatial.js is the tested part)
 session/openbox/    autostart, menu, F13 key inserted into rc.xml
 kodi/userdata/      keymap that no-ops F13
@@ -45,15 +47,14 @@ Details: [docs/install.md](docs/install.md), [docs/remote.md](docs/remote.md), [
 ## Commands
 
 ```text
-skip-htpc launch kodi|netflix|areena
-skip-htpc cycle
-skip-htpc audio
-skip-htpc which
-skip-htpc apps
-skip-htpc doctor
+./launch.sh kodi|netflix|areena|next|status
 ```
 
-From a checkout, the same commands are `python3 -m skip_htpc ...`.
+`next` is what F13 runs. `status` prints the cycle order and which browser would open Netflix. Chrome is first; Chromium is used only when Chrome is not installed.
+
+```bash
+./scripts/selftest.sh
+```
 
 ## Tests
 

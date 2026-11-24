@@ -3,17 +3,17 @@
   <menu id="root-menu" label="Skip HTPC">
     <item label="Kodi">
       <action name="Execute">
-        <command>/usr/local/bin/skip-htpc launch kodi</command>
+        <command>/usr/local/bin/launch.sh kodi</command>
       </action>
     </item>
     <item label="Netflix">
       <action name="Execute">
-        <command>/usr/local/bin/skip-htpc launch netflix</command>
+        <command>/usr/local/bin/launch.sh netflix</command>
       </action>
     </item>
     <item label="Areena">
       <action name="Execute">
-        <command>/usr/local/bin/skip-htpc launch areena</command>
+        <command>/usr/local/bin/launch.sh areena</command>
       </action>
     </item>
     <separator />

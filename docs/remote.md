@@ -10,7 +10,7 @@ Program the Flirc with the Flirc GUI, Full Keyboard layout, the same way the arr
 | OK | Enter | Select / click |
 | Back | Esc | Kodi Back, or browser history |
 | Play, pause, next, previous, stop | Media keys | Passed through. Kodi and Chrome both understand them. |
-| Spare key | F13 | Openbox runs `/usr/local/bin/skip-htpc cycle` |
+| Spare key | F13 | Openbox runs `/usr/local/bin/launch.sh next` |
 
 Leave volume and mute off the Flirc when those buttons still need to reach an amplifier by infrared. A code recorded into the Flirc is consumed by the dongle and the amplifier does not hear it.
 
@@ -21,7 +21,7 @@ Openbox inserts this into `~/.config/openbox/rc.xml` (the installer patches the 
 ```xml
 <keybind key="F13">
   <action name="Execute">
-    <command>/usr/local/bin/skip-htpc cycle</command>
+    <command>/usr/local/bin/launch.sh next</command>
   </action>
 </keybind>
 ```

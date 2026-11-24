@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-LAUNCHER = "/usr/local/bin/skip-htpc"
+import re
+
+F13_COMMAND = "/usr/local/bin/launch.sh next"
 
 F13_KEYBIND = f"""    <keybind key="F13">
       <action name="Execute">
-        <command>{LAUNCHER} cycle</command>
+        <command>{F13_COMMAND}</command>
       </action>
     </keybind>
 """
@@ -23,6 +25,14 @@ APP_RULES = """    <application class="skip-htpc-netflix">
 def ensure_cycle_keybind(xml_text: str) -> str:
     if 'key="F13"' in xml_text or "key='F13'" in xml_text:
         updated = xml_text
+        if "launch.sh next" not in updated:
+            updated = re.sub(
+                r"(<keybind key=\"F13\">.*?<command>)(.*?)(</command>)",
+                rf"\1{F13_COMMAND}\3",
+                updated,
+                count=1,
+                flags=re.S,
+            )
     else:
         close = "</keyboard>"
         index = xml_text.rfind(close)
