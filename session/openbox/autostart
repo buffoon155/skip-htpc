@@ -8,7 +8,7 @@ if command -v xset >/dev/null 2>&1; then
   xset -dpms || true
 fi
 
-# HDMI on the GTX 660 when PipeWire or PulseAudio exposes it.
+# HDMI on the GTX 1050 Ti when PipeWire or PulseAudio exposes it.
 /usr/local/bin/skip-htpc audio || true
 
 # The library is the screen that comes up. Netflix and Areena stay

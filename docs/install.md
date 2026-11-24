@@ -4,7 +4,7 @@ Do this on the spare PC, not on a machine you use as a daily desktop. `--yes` sw
 
 ## Base system
 
-Install Ubuntu 22.04 amd64 and update it. Hold the kernel on 5.15 or 6.8 if a later HWE kernel is offered (see [hardware.md](hardware.md)).
+Install Ubuntu 24.04 amd64 and update it. Ubuntu 26.04 is also accepted. Leave the kernel on the distro's current version (see [hardware.md](hardware.md)).
 
 ```bash
 git clone https://github.com/buffoon155/skip-htpc.git
@@ -78,4 +78,4 @@ skip-htpc cycle
 nvidia-smi
 ```
 
-`nvidia-smi` should report a 470.x driver after `--nvidia` and a reboot. If the screen stays black, boot to a text console from GRUB and use the Nouveau recovery in [hardware.md](hardware.md).
+`nvidia-smi` should report a 580.x driver after `--nvidia` and a reboot. If the screen stays black, boot to a text console from GRUB and use the Nouveau recovery in [hardware.md](hardware.md).

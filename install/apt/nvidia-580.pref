@@ -1,0 +1,8 @@
+# If nvidia-driver-580 is a transitional package that pulls another
+# branch, that candidate will not drive a GeForce GTX 1050 Ti. The
+# installer writes this pin only after it sees that dependency.
+# @CODENAME@ is replaced with the running Ubuntu codename. A later
+# pocket that really contains 580.x is left alone until then.
+Package: *nvidia*580*
+Pin: release a=@CODENAME@-updates
+Pin-Priority: -1

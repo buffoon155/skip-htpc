@@ -6,6 +6,7 @@ printf '%s\n' "$out" | grep -q 'skip-htpc install: dry-run'
 printf '%s\n' "$out" | grep -q 'packages:.*openbox'
 printf '%s\n' "$out" | grep -q 'browser: google-chrome-stable'
 printf '%s\n' "$out" | grep -q 'nvidia: not requested'
+printf '%s\n' "$out" | grep -q 'installer targets Ubuntu 24.04'
 printf '%s\n' "$out" | grep -q 'F13 -> /usr/local/bin/launch.sh next'
 printf '%s\n' "$out" | grep -q 'boot: openbox autostart runs launch.sh kodi'
 

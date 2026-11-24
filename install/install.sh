@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install the Skip HTPC session on the spare AMD64 PC (GeForce GTX 660).
+# Install the Skip HTPC session on the spare AMD64 PC (GeForce GTX 1050 Ti).
 # Default is a dry run. Apply with: sudo ./install/install.sh --yes
 set -euo pipefail
 
@@ -30,7 +30,7 @@ usage: install.sh [--dry-run] [--yes] [--nvidia] [--no-chrome]
 
   --dry-run    print the plan (this is the default)
   --yes        install as root on the HTPC
-  --nvidia     also install the NVIDIA 470 driver when the candidate is really 470.x
+  --nvidia     also install the proprietary NVIDIA 580 driver when the candidate is really 580.x
   --no-chrome  do not add Google's apt repo or install google-chrome-stable
 
 HTPC_USER overrides the autologin account (default: htpc).
@@ -87,9 +87,9 @@ fi
 if [[ -r /etc/os-release ]]; then
   # shellcheck disable=SC1091
   . /etc/os-release
-  echo "os: ${PRETTY_NAME:-unknown} (installer targets Ubuntu 22.04)"
+  echo "os: ${PRETTY_NAME:-unknown} (installer targets Ubuntu 24.04; 26.04 is accepted)"
 else
-  echo "os: unknown (installer targets Ubuntu 22.04)"
+  echo "os: unknown (installer targets Ubuntu 24.04; 26.04 is accepted)"
 fi
 echo "user: ${HTPC_USER}"
 echo "home: ${HOME_DIR}"
@@ -110,6 +110,14 @@ echo "boot: openbox autostart runs launch.sh kodi; desktop and user unit are opt
 if [[ "$DRY" -eq 1 ]]; then
   exit 0
 fi
+
+case "${VERSION_ID:-}" in
+  24.04|26.04) ;;
+  *)
+    echo "this installer applies on Ubuntu 24.04 or 26.04 for the GTX 1050 Ti. This machine is ${VERSION_ID:-unknown}." >&2
+    exit 1
+    ;;
+esac
 
 export DEBIAN_FRONTEND=noninteractive
 export PYTHONPATH="${ROOT}${PYTHONPATH:+:$PYTHONPATH}"
@@ -207,9 +215,10 @@ install -m 0644 "${ROOT}/session/systemd/skip-htpc.service" \
   /usr/lib/systemd/user/skip-htpc.service
 
 install_nvidia() {
-  local ver dep code
-  ver=$(apt-cache policy nvidia-driver-470 | awk '/Candidate:/ {print $2; exit}')
-  dep=$(apt-cache depends nvidia-driver-470 2>/dev/null || true)
+  local ver dep code pkg
+  pkg=nvidia-driver-580
+  ver=$(apt-cache policy "$pkg" | awk '/Candidate:/ {print $2; exit}')
+  dep=$(apt-cache depends "$pkg" 2>/dev/null || true)
   set +e
   python3 -m skip_htpc nvidia-ok --version "${ver:-}" --depends "$dep" --kernel "$(uname -r)"
   code=$?
@@ -222,16 +231,16 @@ install_nvidia() {
       codename=${VERSION_CODENAME:-}
     fi
     if [[ -z "$codename" ]]; then
-      echo "cannot pin the 470 wrapper without VERSION_CODENAME" >&2
+      echo "cannot pin the 580 wrapper without VERSION_CODENAME" >&2
       return 1
     fi
-    echo "nvidia-driver-470 candidate depends on a newer driver; pinning ${codename}-updates away"
-    sed "s/@CODENAME@/${codename}/g" "${ROOT}/install/apt/nvidia-470.pref" \
-      > /etc/apt/preferences.d/nvidia-470
-    chmod 0644 /etc/apt/preferences.d/nvidia-470
+    echo "nvidia-driver-580 candidate depends on another driver; pinning ${codename}-updates away"
+    sed "s/@CODENAME@/${codename}/g" "${ROOT}/install/apt/nvidia-580.pref" \
+      > /etc/apt/preferences.d/nvidia-580
+    chmod 0644 /etc/apt/preferences.d/nvidia-580
     apt-get update
-    ver=$(apt-cache policy nvidia-driver-470 | awk '/Candidate:/ {print $2; exit}')
-    dep=$(apt-cache depends nvidia-driver-470 2>/dev/null || true)
+    ver=$(apt-cache policy "$pkg" | awk '/Candidate:/ {print $2; exit}')
+    dep=$(apt-cache depends "$pkg" 2>/dev/null || true)
     set +e
     python3 -m skip_htpc nvidia-ok --version "${ver:-}" --depends "$dep" --kernel "$(uname -r)"
     code=$?
@@ -239,17 +248,17 @@ install_nvidia() {
   fi
   if [[ "$code" -ne 0 ]]; then
     echo "not installing a NVIDIA driver (status ${code})." >&2
-    apt-cache policy nvidia-driver-470 >&2 || true
+    apt-cache policy "$pkg" >&2 || true
     echo "The Openbox session is installed. The display stays on its current driver." >&2
     echo "See docs/hardware.md before trying again." >&2
     return 1
   fi
   if command -v mokutil >/dev/null 2>&1; then
     if mokutil --sb-state 2>/dev/null | grep -qi "SecureBoot enabled"; then
-      echo "Secure Boot is on. The 470 module is DKMS and needs a MOK enrollment, or Secure Boot turned off, before the reboot will show a picture."
+      echo "Secure Boot is on. If the 580 module does not load, enroll its MOK or turn Secure Boot off before the next reboot."
     fi
   fi
-  apt-get install -y "linux-headers-$(uname -r)" nvidia-driver-470
+  apt-get install -y "linux-headers-$(uname -r)" nvidia-driver-580
 }
 
 if [[ "$NVIDIA" -eq 1 ]]; then
@@ -267,6 +276,6 @@ Installed. Reboot, then:
   4. Program the Flirc as a keyboard. Leave volume off it if the amp still
      hears those IR codes directly. See docs/remote.md.
 
-Do not run ubuntu-drivers install on this PC. A newer NVIDIA branch does not
-support the GTX 660.
+Do not run ubuntu-drivers install on this PC. A branch newer than 580, and
+the open kernel modules, do not support the GTX 1050 Ti.
 EOF
