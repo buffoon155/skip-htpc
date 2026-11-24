@@ -7,6 +7,7 @@ printf '%s\n' "$out" | grep -q 'packages:.*openbox'
 printf '%s\n' "$out" | grep -q 'browser: google-chrome-stable'
 printf '%s\n' "$out" | grep -q 'nvidia: not requested'
 printf '%s\n' "$out" | grep -q 'F13 -> /usr/local/bin/launch.sh next'
+printf '%s\n' "$out" | grep -q 'boot: openbox autostart runs launch.sh kodi'
 
 nvidia=$("$root/install/install.sh" --dry-run --nvidia --no-chrome)
 printf '%s\n' "$nvidia" | grep -q 'nvidia: requested'

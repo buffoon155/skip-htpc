@@ -34,6 +34,8 @@ grep -q 'outline' extension/content.js
 grep -q "data-uia='title-card'" extension/content.js
 grep -q handleNext extension/content.js
 grep -q Takaisin extension/content.js
+grep -q 'Exec=/usr/local/bin/launch.sh kodi' session/autostart/skip-htpc.desktop
+grep -q 'ExecStart=/usr/local/bin/launch.sh kodi' session/systemd/skip-htpc.service
 grep -q 'function navigate' extension/spatial.js
 
 tmp=$(mktemp -d)

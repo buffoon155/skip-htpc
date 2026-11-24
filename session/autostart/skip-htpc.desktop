@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=skip-htpc
+Comment=Open Kodi on the living-room display
+Exec=/usr/local/bin/launch.sh kodi
+Terminal=false
+Categories=AudioVideo;
+X-GNOME-Autostart-enabled=true

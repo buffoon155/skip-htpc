@@ -25,7 +25,9 @@ launch.sh           kodi | netflix | areena | next | status
 config.yaml         cycle_order: [kodi, netflix, areena]
 skip_htpc/          window focus, Chrome startup, audio
 extension/          MV3 content script (spatial.js is the tested part)
-session/openbox/    autostart, menu, F13 key inserted into rc.xml
+session/openbox/    autostart (the boot path), menu, F13 key
+session/autostart/  optional .desktop, not enabled by the installer
+session/systemd/    optional user unit, not enabled by the installer
 kodi/userdata/      keymap that no-ops F13
 install/            installer for the HTPC (dry-run unless --yes)
 docs/               hardware, install, remote, streaming

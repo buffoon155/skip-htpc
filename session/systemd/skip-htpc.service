@@ -1,0 +1,12 @@
+[Unit]
+Description=Open Kodi for the living-room display
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/launch.sh kodi
+
+[Install]
+WantedBy=graphical-session.target

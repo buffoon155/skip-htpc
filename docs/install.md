@@ -28,6 +28,21 @@ sudo reboot
 
 The script does not restart the display manager. Reboot when you are ready for the TV to come up as `htpc`.
 
+## Boot
+
+LightDM autologins `htpc` into Openbox. `~/.config/openbox/autostart` runs `launch.sh kodi`. That is the path that has `DISPLAY`.
+
+Two extras are copied and left disabled:
+
+- `/usr/share/applications/skip-htpc.desktop`. Copy it to `~/.config/autostart/` only when you are not using the Openbox autostart line.
+- `/usr/lib/systemd/user/skip-htpc.service`. On a session that already has `DISPLAY`:
+
+```bash
+systemctl --user enable --now skip-htpc.service
+```
+
+`loginctl enable-linger htpc` is not required. The TV always has a login. Enabling the desktop file and the Openbox line together starts Kodi twice; `launch.sh` focuses a window that is already open, so wait until Kodi's window exists before treating a second start as a failure.
+
 ## First boot
 
 1. Kodi opens on the library screen.
@@ -39,7 +54,9 @@ The script does not restart the display manager. Reboot when you are ready for t
 
 ## Config
 
-Optional files, merged in this order: `/etc/skip-htpc/config.json`, `~/.config/skip-htpc/config.json`, then `SKIP_HTPC_CONFIG`.
+`launch.sh` reads `config.yaml` (`cycle_order: [kodi, netflix, areena]`, plus the two site URLs). The installer copies it to `/etc/skip-htpc/config.yaml` when that file is absent.
+
+The Python launcher still reads JSON, merged in this order: `/etc/skip-htpc/config.json`, `~/.config/skip-htpc/config.json`, then `SKIP_HTPC_CONFIG`. `launch.sh` passes the YAML URLs through as `SKIP_HTPC_NETFLIX_URL` and `SKIP_HTPC_AREENA_URL`.
 
 ```json
 {

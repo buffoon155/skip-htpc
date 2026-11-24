@@ -105,6 +105,7 @@ else
   echo "nvidia: not requested"
 fi
 echo "session: lightdm autologin, openbox, F13 -> /usr/local/bin/launch.sh next"
+echo "boot: openbox autostart runs launch.sh kodi; desktop and user unit are optional"
 
 if [[ "$DRY" -eq 1 ]]; then
   exit 0
@@ -196,6 +197,14 @@ install -m 0644 \
 chown -R "${HTPC_USER}:${HTPC_USER}" \
   "${HOME_DIR}/.config/openbox" \
   "${HOME_DIR}/.kodi"
+
+# Openbox autostart is the boot path. These two are installed and left off
+# so a login does not start Kodi a second time.
+install -m 0644 "${ROOT}/session/autostart/skip-htpc.desktop" \
+  /usr/share/applications/skip-htpc.desktop
+install -d /usr/lib/systemd/user
+install -m 0644 "${ROOT}/session/systemd/skip-htpc.service" \
+  /usr/lib/systemd/user/skip-htpc.service
 
 install_nvidia() {
   local ver dep code
