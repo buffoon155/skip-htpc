@@ -6,7 +6,7 @@ PartOf=graphical-session.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/local/bin/launch.sh kodi
+ExecStart=/usr/local/share/skip-htpc/session/plasma/session.sh
 
 [Install]
 WantedBy=graphical-session.target

@@ -27,7 +27,7 @@ class BrowserArgTests(unittest.TestCase):
         self.assertFalse(uses_debugging_pipe("chromium-browser", "Chromium 120.0"))
 
     def test_argv_splits_the_two_loading_methods(self) -> None:
-        app = default_config()["apps"][1]
+        app = next(item for item in default_config()["apps"] if item["id"] == "netflix")
         extension = Path("/usr/local/share/skip-htpc/extension")
         profile = Path("/tmp/netflix-profile")
         piped = browser_argv("google-chrome-stable", app, extension, profile, True)
@@ -40,6 +40,15 @@ class BrowserArgTests(unittest.TestCase):
         self.assertIn("--app=https://www.netflix.com", plain)
         self.assertIn("--class=skip-htpc-netflix", plain)
         self.assertIn(f"--user-data-dir={profile}", plain)
+        enables = [arg for arg in plain if arg.startswith("--enable-features=")]
+        self.assertEqual(enables, [
+            "--enable-features=AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL"
+        ])
+        self.assertIn("--use-gl=desktop", plain)
+        self.assertEqual(
+            [arg for arg in piped if arg.startswith("--enable-features=")],
+            enables,
+        )
 
     def test_resolve_browser_prefers_config_then_chrome(self) -> None:
         config = default_config()

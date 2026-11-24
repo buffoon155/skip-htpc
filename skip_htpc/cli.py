@@ -12,8 +12,8 @@ from skip_htpc.audio import pick_hdmi_sink
 from skip_htpc.browser import resolve_browser, spawn_browser
 from skip_htpc.config import app_by_id, app_order, apply_url_override, load_config
 from skip_htpc.launch import cycle_target, plan_launch
-from skip_htpc.nvidia import nvidia_status, nvidia_status_message
-from skip_htpc.openbox_rc import ensure_cycle_keybind
+from skip_htpc.amd import gpu_status, gpu_status_message
+from skip_htpc.plasma import ensure_shortcut
 from skip_htpc.paths import (
     debounce,
     extension_dir,
@@ -34,12 +34,12 @@ commands:
   which                 print the focused app id, or none
   apps                  print the cycle order
   doctor                check the browser, extension, and tools
-  patch-openbox <file> insert the F13 keybind into an Openbox rc.xml
-  nvidia-ok             installer check (see --help on that command)
+  patch-plasma <file>  insert the F13 shortcut into kglobalshortcutsrc
+  gpu-ok                installer check (see --help on that command)
   browser-supervise <app>
                         internal: start Chrome and hold its extension pipe
 
-app ids come from the config. The defaults are kodi, netflix, areena.
+app ids come from the config. The defaults are kodi, youtube, areena, netflix.
 """.strip()
 
 WINDOW_WAIT_SECONDS = 8.0
@@ -68,10 +68,10 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_apps(rest)
         if command == "doctor":
             return cmd_doctor(rest)
-        if command == "patch-openbox":
-            return cmd_patch_openbox(rest)
-        if command == "nvidia-ok":
-            return cmd_nvidia_ok(rest)
+        if command == "patch-plasma":
+            return cmd_patch_plasma(rest)
+        if command == "gpu-ok":
+            return cmd_gpu_ok(rest)
         if command == "browser-supervise":
             return cmd_browser_supervise(rest)
     except WindowQueryError as exc:
@@ -301,9 +301,7 @@ def cmd_doctor(args: list[str]) -> int:
         print(f"{tool}: {found or 'MISSING'}")
         if tool == "wmctrl" and not found:
             ok = False
-    gpu = _lspci_vga()
-    if gpu:
-        print(f"gpu: {gpu}")
+    print(_gpu_report())
     return 0 if ok else 1
 
 
@@ -324,30 +322,35 @@ def extension_manifest_ok(path: Path) -> tuple[bool, str]:
     missing = [item for item in needed if item not in matches]
     if missing:
         return False, "missing host matches: " + ", ".join(missing)
+    # YouTube TV (youtube.com/tv) already moves with the remote. The spatial
+    # ring would take those keys.
+    if any("youtube.com" in item for item in matches):
+        return False, "YouTube TV stays out of the spatial matches"
     return True, str(data.get("name") or path.name)
 
 
-def cmd_patch_openbox(args: list[str]) -> int:
+def cmd_patch_plasma(args: list[str]) -> int:
     if len(args) != 1:
-        print("usage: skip-htpc patch-openbox <rc.xml>", file=sys.stderr)
+        print("usage: skip-htpc patch-plasma <kglobalshortcutsrc>", file=sys.stderr)
         return 2
     path = Path(args[0])
-    text = path.read_text(encoding="utf-8")
-    path.write_text(ensure_cycle_keybind(text), encoding="utf-8")
+    text = path.read_text(encoding="utf-8") if path.is_file() else ""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(ensure_shortcut(text), encoding="utf-8")
     print(path)
     return 0
 
 
-def cmd_nvidia_ok(args: list[str]) -> int:
-    version = ""
-    depends = ""
-    kernel = ""
+def cmd_gpu_ok(args: list[str]) -> int:
+    lspci_text = ""
+    driver = ""
+    vainfo_text = ""
     index = 0
     while index < len(args):
         flag = args[index]
         if flag in ("-h", "--help"):
             print(
-                "usage: skip-htpc nvidia-ok --version VER --depends TEXT --kernel RELEASE",
+                "usage: skip-htpc gpu-ok --lspci TEXT --driver NAME --vainfo TEXT",
                 file=sys.stderr,
             )
             return 0
@@ -355,21 +358,18 @@ def cmd_nvidia_ok(args: list[str]) -> int:
             print(f"{flag} needs a value", file=sys.stderr)
             return 2
         value = args[index + 1]
-        if flag == "--version":
-            version = value
-        elif flag == "--depends":
-            depends = value
-        elif flag == "--kernel":
-            kernel = value
+        if flag == "--lspci":
+            lspci_text = value
+        elif flag == "--driver":
+            driver = value
+        elif flag == "--vainfo":
+            vainfo_text = value
         else:
             print(f"unknown flag {flag}", file=sys.stderr)
             return 2
         index += 2
-    if not kernel:
-        print("nvidia-ok needs --kernel", file=sys.stderr)
-        return 2
-    code = nvidia_status(version, depends, kernel)
-    print(nvidia_status_message(code), file=sys.stderr)
+    code = gpu_status(lspci_text, driver, vainfo_text)
+    print(gpu_status_message(code), file=sys.stderr)
     return code
 
 
@@ -449,20 +449,17 @@ def shutil_which(name: str) -> str | None:
     return which(name)
 
 
-def _lspci_vga() -> str:
+def _gpu_report() -> str:
     try:
         completed = subprocess.run(
-            ["lspci"],
+            ["lspci", "-nn"],
             check=False,
             capture_output=True,
             text=True,
             timeout=5,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
-        return ""
+        return "gpu: unseen"
     if completed.returncode != 0:
-        return ""
-    for line in completed.stdout.splitlines():
-        if "VGA" in line or "3D" in line or "Display" in line:
-            return line.strip()
-    return ""
+        return "gpu: unseen"
+    return "gpu: " + gpu_status_message(gpu_status(completed.stdout, "", ""))

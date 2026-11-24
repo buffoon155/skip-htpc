@@ -18,7 +18,10 @@ def pick_hdmi_sink(text: str, configured: str = "") -> str | None:
     names = parse_sinks(text)
     if wanted:
         return wanted if wanted in names else None
-    for name in names:
-        if "hdmi" in name.lower():
-            return name
-    return None
+    hdmi = [name for name in names if "hdmi" in name.lower()]
+    if not hdmi:
+        return None
+    # The i7-3770's own HDMI is PCI bus 00. The RX 580 in the x16 slot is
+    # bus 01 on this board, and that is the sink the TV is plugged into.
+    hdmi.sort(key=lambda name: (0 if "0000_01_" in name.lower() else 1, name.lower()))
+    return hdmi[0]

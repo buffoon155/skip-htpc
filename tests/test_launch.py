@@ -16,16 +16,17 @@ WINDOWS = parse_wmctrl_lx(
 class LaunchTests(unittest.TestCase):
     def setUp(self) -> None:
         self.config = default_config()
-        self.order = ["kodi", "netflix", "areena"]
+        self.order = ["kodi", "youtube", "areena", "netflix"]
 
     def test_cycle_follows_the_focused_app(self) -> None:
-        self.assertEqual(cycle_target("kodi", "areena", self.order), "netflix")
-        self.assertEqual(cycle_target("netflix", "kodi", self.order), "areena")
-        self.assertEqual(cycle_target("areena", "netflix", self.order), "kodi")
+        self.assertEqual(cycle_target("kodi", "netflix", self.order), "youtube")
+        self.assertEqual(cycle_target("youtube", "kodi", self.order), "areena")
+        self.assertEqual(cycle_target("areena", "youtube", self.order), "netflix")
+        self.assertEqual(cycle_target("netflix", "areena", self.order), "kodi")
 
     def test_cycle_uses_the_last_app_when_focus_is_elsewhere(self) -> None:
-        self.assertEqual(cycle_target(None, "netflix", self.order), "areena")
-        self.assertEqual(cycle_target("terminal", "areena", self.order), "kodi")
+        self.assertEqual(cycle_target(None, "youtube", self.order), "areena")
+        self.assertEqual(cycle_target("terminal", "netflix", self.order), "kodi")
 
     def test_cycle_starts_at_kodi(self) -> None:
         self.assertEqual(cycle_target(None, None, self.order), "kodi")
