@@ -11,7 +11,7 @@ Separate profiles mean both can stay open. `skip-htpc launch` focuses the existi
 
 ## Widevine
 
-Install Google Chrome (`google-chrome-stable`). That package supplies the Widevine CDM. On Linux the CDM is L3, so Netflix tops out around 720p. Areena's web player uses the same browser. The GTX 660 does not change the CDM level.
+Install Google Chrome (`google-chrome-stable`). That package supplies the Widevine CDM. On Linux the CDM is L3, so Netflix tops out around 720p. Areena's web player uses the same browser. The GTX 1050 Ti does not change the CDM level. Kodi can use the card's HEVC decoder; Netflix in Chrome does not.
 
 `launch.sh` selects `google-chrome-stable`, then `google-chrome`, and only then `chromium` or `chromium-browser`. Chromium still accepts `--load-extension`, but the distro build often has no CDM, so Netflix does not play. The launcher treats a binary whose version string starts with `Google Chrome` as branded Chrome, and everything else as Chromium.
 

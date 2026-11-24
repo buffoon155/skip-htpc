@@ -37,11 +37,11 @@ class CliTests(unittest.TestCase):
                     [
                         "nvidia-ok",
                         "--version",
-                        "470.256.02-0ubuntu0.22.04.1",
+                        "580.196.11-0ubuntu0.24.04.1",
                         "--depends",
-                        "Depends: nvidia-dkms-470",
+                        "Depends: nvidia-dkms-580",
                         "--kernel",
-                        "6.8.0-79-generic",
+                        "6.14.0-1-generic",
                     ]
                 ),
                 0,
@@ -51,11 +51,11 @@ class CliTests(unittest.TestCase):
                     [
                         "nvidia-ok",
                         "--version",
-                        "470.256.02-0ubuntu1",
+                        "580.196.11-0ubuntu1",
                         "--depends",
-                        "Depends: nvidia-driver-535",
+                        "Depends: nvidia-driver-590",
                         "--kernel",
-                        "6.8.0-40-generic",
+                        "6.14.0-1-generic",
                     ]
                 ),
                 10,
