@@ -108,6 +108,19 @@
     });
   }
 
+  function closestVertically(originY, items) {
+    var best = null;
+    var bestDy = Infinity;
+    items.forEach(function (item) {
+      var dy = Math.abs(item.y + item.h / 2 - originY);
+      if (dy < bestDy) {
+        bestDy = dy;
+        best = item;
+      }
+    });
+    return best;
+  }
+
   function isTypingElement(el) {
     if (!el || !el.tagName) return false;
     var tag = String(el.tagName).toUpperCase();
@@ -125,6 +138,7 @@
     preferTiles: preferTiles,
     isUsableRect: isUsableRect,
     largeVideo: largeVideo,
+    closestVertically: closestVertically,
     isTypingElement: isTypingElement,
   };
 })(globalThis);

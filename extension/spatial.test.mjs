@@ -30,6 +30,12 @@ test("no candidate in that direction returns null", () => {
   assert.equal(S.navigate(left, [below], "right"), null);
 });
 
+test("the row handle on the same row wins", () => {
+  const far = { y: 400, h: 40 };
+  const near = { y: 80, h: 40 };
+  assert.equal(S.closestVertically(100, [far, near]), near);
+});
+
 test("the first target is the top-left tile", () => {
   assert.equal(S.initialTarget([right, below, left]), left);
 });

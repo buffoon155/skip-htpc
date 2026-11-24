@@ -16,6 +16,27 @@
     "[role='option']",
     "[role='slider']",
     "[tabindex]:not([tabindex='-1'])",
+    "[data-uia='title-card']",
+    "[data-uia='title-card-container']",
+    "a.slider-refocus",
+    "a[href*='/1-']",
+  ].join(",");
+
+  var PLAY_IN_CARD = [
+    "[data-uia*='play']",
+    "a[href*='/watch/']",
+    "button[aria-label*='Play']",
+    "button[aria-label*='Toista']",
+    "button[aria-label*='Katso']",
+    "a[aria-label*='Katso']",
+    "a[aria-label*='Toista']",
+  ].join(",");
+
+  var BACK_SELECTOR = [
+    "[data-uia='player-back']",
+    "button[aria-label='Back']",
+    "button[aria-label*='Takaisin']",
+    "a[aria-label*='Takaisin']",
   ].join(",");
 
   var DIRS = {
@@ -65,6 +86,62 @@
       items.push(box);
     }
     return S.preferTiles(items);
+  }
+
+  function playTarget(el) {
+    if (!el) return null;
+    var uia = (el.getAttribute && el.getAttribute("data-uia")) || "";
+    var label = (el.getAttribute && el.getAttribute("aria-label")) || "";
+    var href = (el.getAttribute && el.getAttribute("href")) || "";
+    if (/play|toista|katso/i.test(uia + " " + label) || href.indexOf("/watch/") !== -1) {
+      return el;
+    }
+    if (!el.querySelector) return null;
+    return el.querySelector(PLAY_IN_CARD);
+  }
+
+  function visibleBack() {
+    var nodes = document.querySelectorAll(BACK_SELECTOR);
+    var view = { w: window.innerWidth, h: window.innerHeight };
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var rect = el.getBoundingClientRect();
+      var box = { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
+      if (!S.isUsableRect(box, view, 0)) continue;
+      var style = window.getComputedStyle(el);
+      if (style.visibility === "hidden" || style.display === "none") continue;
+      if (Number(style.opacity) === 0) continue;
+      return el;
+    }
+    return null;
+  }
+
+  function rowHandle(direction) {
+    var sel = direction === "right"
+      ? "button.handleNext, [data-uia='handleNext'], [data-uia='pagination-next'], button[aria-label='Next'], button[aria-label*='Seuraava']"
+      : "button.handlePrev, [data-uia='handlePrev'], [data-uia='pagination-previous'], button[aria-label='Previous'], button[aria-label*='Edellinen']";
+    var view = { w: window.innerWidth, h: window.innerHeight };
+    var nodes = document.querySelectorAll(sel);
+    var items = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.getAttribute("aria-hidden") === "true") continue;
+      var rect = el.getBoundingClientRect();
+      var box = { el: el, x: rect.left, y: rect.top, w: rect.width, h: rect.height };
+      // Row chevrons are often opacity 0 until the pointer is over the row.
+      if (!S.isUsableRect(box, view, 0)) continue;
+      items.push(box);
+    }
+    if (!items.length) return null;
+    var originY = window.innerHeight / 2;
+    if (current && current.getBoundingClientRect) {
+      var live = current.getBoundingClientRect();
+      originY = live.top + live.height / 2;
+    }
+    var best = S.closestVertically(originY, items);
+    if (!best) return null;
+    if (Math.abs(best.y + best.h / 2 - originY) > 160) return null;
+    return best.el;
   }
 
   function ring() {
@@ -137,6 +214,13 @@
   }
 
   function nudge(direction) {
+    if (direction === "left" || direction === "right") {
+      var handle = rowHandle(direction);
+      if (handle) {
+        handle.click();
+        return;
+      }
+    }
     var scroller = scrollableAncestor(current, direction);
     var dx = direction === "right" ? 0.8 : direction === "left" ? -0.8 : 0;
     var dy = direction === "down" ? 0.8 : direction === "up" ? -0.8 : 0;
@@ -171,10 +255,12 @@
     }
 
     if (back) {
+      var backEl = visibleBack();
       hideRing();
       event.preventDefault();
       event.stopPropagation();
-      window.history.back();
+      if (backEl) backEl.click();
+      else window.history.back();
       return;
     }
 
@@ -190,7 +276,7 @@
       }
       event.preventDefault();
       event.stopPropagation();
-      current.click();
+      (playTarget(current) || current).click();
       return;
     }
 

@@ -31,6 +31,9 @@ grep -q 'addEventListener("keydown"' extension/content.js
 grep -q ', true);' extension/content.js
 grep -q '#ff6a00' extension/content.js
 grep -q 'outline' extension/content.js
+grep -q "data-uia='title-card'" extension/content.js
+grep -q handleNext extension/content.js
+grep -q Takaisin extension/content.js
 grep -q 'function navigate' extension/spatial.js
 
 tmp=$(mktemp -d)
